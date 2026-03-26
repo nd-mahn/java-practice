@@ -1,0 +1,54 @@
+JavaCoreProject/
+├── docts/ (KHO LÝ THUYẾT - Mỗi file tương ứng 1 chương TutorialsPoint)
+│   ├── 00-jvm-architecture.md       # Cơ chế Stack/Heap, cách Garbage Collector dọn rác.
+│   ├── 01-basics-operators.md       # Kiểu dữ liệu, ép kiểu, toán tử bitwise/arithmetic.
+│   ├── 02-oop-deep-dive.md          # Interface vs Abstract, IS-A vs HAS-A, Polimorphism.
+│   ├── 03-generics-collections.md   # Cách dùng List/Map/Set, Generic Types (T, E, K, V).
+│   ├── 04-java8-modern.md           # Lambda, Stream API (filter, map, collect), Optional.
+│   ├── 05-exception-handling.md     # Checked vs Unchecked, Try-with-resources, Multi-catch.
+│   ├── 06-concurrency-multithread.md# Thread life cycle, Synchronization, Lock, Deadlock.
+│   ├── 07-io-serialization.md       # File I/O (NIO.2), Reader/Writer, Serialization.
+│   ├── 08-jdbc-technologies.md      # PreparedStatement, Batch Processing, Transactions.
+│   └── 09-network-servlets.md       # Socket, HTTP Protocol cơ bản (Nền tảng của Web).
+│
+├── src/main/java/com/java/mastery/
+│   ├── architecture/
+│   │   └── MemoryDebugger.java      # BT: Code gây StackOverflow & OutOfMemory.
+│   │
+│   ├── oop_concepts/
+│   │   ├── models/                 # Employee (Abstract), Taxable (Interface).
+│   │   └── PayrollSystem.java      # BT: Tính lương bằng tính Đa hình.
+│   │
+│   ├── collections_lab/
+│   │   ├── ProductManager.java     # BT: Quản lý kho hàng dùng HashMap & ArrayList.
+│   │   └── StreamProcessor.java    # BT: Dùng Stream API để lọc & thống kê doanh thu.
+│   │
+│   ├── concurrency_lab/
+│   │   ├── BankAccount.java        # Tài nguyên dùng chung.
+│   │   └── SafeBankTransfer.java   # BT: Chuyển tiền an toàn giữa 100 luồng.
+│   │
+│   ├── io_exception/
+│   │   ├── CustomException.java    # Định nghĩa lỗi InsufficientFundsException.
+│   │   └── LogFileParser.java      # BT: Đọc file log lớn, dùng Regex lọc lỗi.
+│   │
+│   ├── database/
+│   │   ├── DBConnection.java       # Cấu hình kết nối MySQL/SQLite.
+│   │   └── JdbcTransaction.java    # BT: Chuyển tiền SQL có Rollback.
+│   │
+│   ├── network_socket/
+│   │   └── MiniHttpServer.java     # BT: Trả về HTML qua ServerSocket.
+│   ├── design_pattern_lab/
+│   │    └── solid/
+│   │         ├── s_single_responsibility/
+│   │         ├── o_open_closed/
+│   │         ├── l_liskov_substitution/
+│   │         ├── i_interface_segregation/
+│   │         └── d_dependency_inversion/
+│   │    ├── creational/
+│   │    ├── structural/
+│   │    └── behavioral/
+│   │
+│   └── MainApplication.java        # MENU ĐIỀU HƯỚNG CHÍNH.
+│
+├── data/                           # Chứa input.log, output.txt, database.sqlite.
+└── pom.xml                         # Quản lý thư viện: JUnit 5, MySQL Driver, Lombok.
