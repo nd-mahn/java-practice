@@ -6,6 +6,7 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/spring-mastery-project/pom.xml" />
+        <option value="$PROJECT_DIR$/micro-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
