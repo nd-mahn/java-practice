@@ -1,236 +1,71 @@
-# 1. JDK vs JRE vs JVM (Bản tối giản dễ nhớ)
+# ☕ JAVA CORE MASTER: JVM ARCHITECTURE & LIFECYCLE
 
-## 🔥 So sánh nhanh
+## I. HỆ SINH THÁI JAVA (JDK - JRE - JVM)
 
-| Layer | Bao gồm          | Dùng để làm gì | Định nghĩa ngắn                  |
-| ----- | ---------------- | -------------- | -------------------------------- |
-| JDK   | JRE + Tools      | Dev            | Bộ công cụ để lập trình Java     |
-| JRE   | JVM + Libraries  | Run            | Môi trường để chạy ứng dụng Java |
-| JVM   | Execution Engine | Execute        | Máy ảo thực thi bytecode         |
-
----
-
-## 🔥 Dependency Diagram (Cốt lõi)
-
-```
-JDK
- └── JRE
-      └── JVM
-```
+| Thành phần | Viết tắt | Vai trò | Chứa gì? |
+| :--- | :--- | :--- | :--- |
+| **Java Virtual Machine** | **JVM** | Thực thi Bytecode, giúp Java độc lập nền tảng. | Trình thông dịch (Interpreter), JIT Compiler, Garbage Collector (GC). |
+| **Java Runtime Environment** | **JRE** | Cung cấp môi trường để **chạy** ứng dụng Java. | JVM + Thư viện lớp chuẩn (Standard Libraries/RT.jar). |
+| **Java Development Kit** | **JDK** | Bộ công cụ đầy đủ để **phát triển** ứng dụng. | JRE + Công cụ phát triển (Compiler `javac`, Debugger `jdb`). |
 
 ---
 
-## 🔥 Flow thực tế
+## II. KIẾN TRÚC BỘ NHỚ RUNTIME (JVM RUNTIME DATA AREAS)
 
-```
-.java → javac → .class → JVM → OS
-```
+JVM chia bộ nhớ thành các vùng chuyên biệt để quản lý dữ liệu hiệu quả:
 
----
+### 1. Phân vùng dùng chung (Shared Areas)
+* **Method Area:** Lưu trữ cấu trúc lớp (Metadata), hằng số (Constant Pool), và các biến `static`. Tồn tại suốt vòng đời ứng dụng.
+* **Heap Area:** Nơi lưu trữ **tất cả các đối tượng (Objects)** và mảng. Đây là mục tiêu chính của Garbage Collector.
 
-# 2. JVM Architecture (Diagram-first)
+### 2. Phân vùng riêng biệt (Per-Thread Areas)
+* **Stack Area:** Mỗi Thread có một Stack riêng. Lưu trữ các **biến cục bộ**, tham chiếu đối tượng (reference) và các Stack Frame (lời gọi hàm).
+* **PC Register:** Lưu địa chỉ lệnh hiện tại đang được thực thi bởi luồng.
+* **Native Method Stack:** Dành cho các phương thức viết bằng ngôn ngữ khác (C/C++).
 
-## 🔥 Tổng thể
-
-```mermaid
-graph TD
-    A[Class Loader] --> B[Runtime Data Areas]
-    B --> C[Execution Engine]
-    C --> D[Native Interface]
-```
-
----
-
-# 3. ClassLoader (Table hóa)
-
-## 🔥 Delegation Model
-
-| Level | Loader      | Vai trò               | Định nghĩa ngắn                |
-| ----- | ----------- | --------------------- | ------------------------------ |
-| 1     | Bootstrap   | Load core (java.lang) | Loader gốc, load thư viện Java |
-| 2     | Platform    | Load extension        | Load thư viện mở rộng          |
-| 3     | Application | Load app code         | Load code của ứng dụng         |
+### 3. So sánh Stack và Heap (Cực kỳ quan trọng)
+| Đặc điểm | Stack Area | Heap Area |
+| :--- | :--- | :--- |
+| **Đối tượng lưu trữ** | Biến cục bộ, tham chiếu, lời gọi hàm. | Đối tượng thực tế (`new Object()`), mảng. |
+| **Quản lý** | Tự động giải phóng theo cơ chế LIFO. | Quản lý bởi bộ dọn rác (GC). |
+| **Phạm vi** | Riêng tư cho từng Thread. | Dùng chung toàn bộ ứng dụng. |
+| **Lỗi thường gặp** | `StackOverflowError` (Đệ quy quá sâu). | `OutOfMemoryError` (Tràn bộ nhớ Heap). |
 
 ---
 
-## 🔥 Lifecycle
+## III. VÒNG ĐỜI CỦA MỘT CLASS (CLASS LIFECYCLE)
 
-| Step    | Mô tả                      | Định nghĩa ngắn     |
-| ------- | -------------------------- | ------------------- |
-| Loading | Load file .class           | Đọc file bytecode   |
-| Linking | Verify + Prepare + Resolve | Kiểm tra & chuẩn bị |
-| Init    | Chạy static block          | Khởi tạo class      |
+Trước khi mã nguồn được thực thi, Class phải trải qua quy trình 5 giai đoạn:
 
----
-
-# 4. Memory Model (CỰC QUAN TRỌNG)
-
-## 🔥 Tổng quan
-
-```mermaid
-graph TD
-    A[Heap - Shared]
-    B[Stack - Thread]
-    C[PC Register]
-    D[Native Stack]
-    E[Metaspace]
-
-    A -->|Object| X
-    B -->|Frame| Y
-```
+1.  **Loading:** ClassLoader nạp file `.class` vào Method Area.
+2.  **Linking:**
+    * *Verification:* Kiểm tra mã có hợp lệ và an toàn không.
+    * *Preparation:* Cấp bộ nhớ cho biến `static` và gán giá trị mặc định (vd: 0, null).
+    * *Resolution:* Chuyển tham chiếu ký hiệu sang địa chỉ vật lý.
+3.  **Initialization:** Thực thi khối `static { ... }` và gán giá trị thực tế cho các biến `static`.
+4.  **Usage:** Class sẵn sàng để tạo đối tượng (`new`) hoặc gọi phương thức.
+5.  **Unloading:** Xóa class khỏi bộ nhớ (khi ClassLoader không còn tồn tại).
 
 ---
 
-## 🔥 So sánh vùng nhớ
+## IV. BỘ DỌN RÁC - GARBAGE COLLECTION (GC)
 
-| Memory       | Scope  | Chứa gì        | Lỗi thường gặp | Định nghĩa ngắn      |
-| ------------ | ------ | -------------- | -------------- | -------------------- |
-| Heap         | Shared | Object         | OOM            | Nơi lưu object       |
-| Stack        | Thread | Method call    | StackOverflow  | Nơi chạy hàm         |
-| Metaspace    | Shared | Class metadata | OOM Metaspace  | Lưu thông tin class  |
-| PC           | Thread | Instruction    | -              | Con trỏ lệnh         |
-| Native Stack | Thread | Native call    | -              | Stack cho code C/C++ |
+### 1. Cơ chế Mark and Sweep
+* **Mark (Đánh dấu):** Duyệt từ **GC Roots** (biến static, biến local) để tìm các đối tượng còn đang được sử dụng.
+* **Sweep (Quét):** Thu hồi bộ nhớ của các đối tượng không được đánh dấu (không có tham chiếu).
 
----
-
-## 🔥 Heap Structure (Quan trọng nhất)
-
-```
-Heap
- ├── Young Gen
- │    ├── Eden
- │    ├── S0
- │    └── S1
- │
- └── Old Gen
-```
+### 2. Phân vùng Heap (Generational Collection)
+* **Young Generation (Eden, S0, S1):** Nơi chứa các đối tượng mới khởi tạo. Thường xuyên được dọn dẹp (Minor GC).
+* **Old Generation (Tenured):** Chứa các đối tượng "sống sót" qua nhiều lần dọn rác ở vùng Young. Vùng này lớn hơn và ít bị quét hơn để tiết kiệm hiệu năng.
 
 ---
 
-## 🔥 Object Lifecycle
+## V. QUY TẮC VÀNG CHO CHUYÊN GIA
 
-| Bước | Mô tả               | Định nghĩa ngắn |
-| ---- | ------------------- | --------------- |
-| 1    | new → Eden          | Object mới tạo  |
-| 2    | Minor GC → Survivor | Object sống sót |
-| 3    | Sống lâu → Old Gen  | Object lâu dài  |
-| 4    | Full GC             | Dọn toàn bộ     |
+> [!IMPORTANT]
+> 1. **Cơ chế WORA:** Java chạy được mọi nơi nhờ Bytecode và các bản JVM riêng biệt cho từng OS.
+> 2. **Tính chất Static:** Biến/Khối static khởi tạo **duy nhất một lần** trong giai đoạn *Initialization*.
+> 3. **Cấm gọi `System.gc()`:** Không can thiệp thủ công vào việc dọn rác vì sẽ gây hiện tượng **Stop-the-World** (đóng băng ứng dụng), làm giảm hiệu năng hệ thống.
 
 ---
-
-# 5. Execution Engine
-
-## 🔥 Thành phần
-
-| Component   | Vai trò            | Định nghĩa ngắn          |
-| ----------- | ------------------ | ------------------------ |
-| Interpreter | Chạy từng dòng     | Thực thi chậm, trực tiếp |
-| JIT         | Optimize & compile | Biên dịch sang native    |
-| GC          | Dọn bộ nhớ         | Thu hồi object           |
-
----
-
-# 6. Garbage Collection (Table hóa)
-
-## 🔥 Loại GC
-
-| GC Type  | Scope | Định nghĩa ngắn  |
-| -------- | ----- | ---------------- |
-| Minor GC | Young | Dọn object mới   |
-| Major GC | Old   | Dọn object lâu   |
-| Full GC  | All   | Dọn toàn bộ heap |
-
----
-
-## 🔥 Algorithm
-
-| Algorithm    | Ý nghĩa        | Định nghĩa ngắn       |
-| ------------ | -------------- | --------------------- |
-| Mark-Sweep   | Đánh dấu + xóa | Xóa object không dùng |
-| Mark-Compact | Dồn memory     | Gom bộ nhớ            |
-| Generational | Phân thế hệ    | Chia heap theo tuổi   |
-
----
-
-# 7. Java Version Changes (RẤT HAY HỎI)
-
-| Version | Change        | Định nghĩa ngắn             |
-| ------- | ------------- | --------------------------- |
-| Java 7  | PermGen       | Vùng chứa metadata cũ       |
-| Java 8+ | Metaspace     | Metadata dùng native memory |
-| Java 9+ | Module system | Bỏ rt.jar, dùng module      |
-
----
-
-# 8. Troubleshooting (Interview killer)
-
-## 🔥 Error Mapping
-
-| Error              | Root Cause       | Định nghĩa ngắn  |
-| ------------------ | ---------------- | ---------------- |
-| StackOverflowError | Recursion        | Tràn stack       |
-| OOM Heap           | Too many objects | Hết heap         |
-| OOM Metaspace      | Too many classes | Hết metadata     |
-| GC Overhead        | GC quá nhiều     | GC chạy liên tục |
-
----
-
-## 🔥 Memory Leak Pattern
-
-| Case              | Ví dụ        | Định nghĩa ngắn      |
-| ----------------- | ------------ | -------------------- |
-| Static giữ ref    | static List  | Object không được GC |
-| Cache không clear | Map          | Giữ dữ liệu lâu      |
-| Listener          | không remove | Leak do callback     |
-
----
-
-# 9. 1-Page Summary (Ôn nhanh trước interview)
-
-## 🔥 Core Map
-
-```
-JDK
- └── JRE
-      └── JVM
-           ├── Heap
-           ├── Stack
-           ├── Metaspace
-           └── GC
-```
-
----
-
-## 🔥 Key bullets
-
-* Heap = Object → nơi lưu dữ liệu
-
-* Stack = Method → nơi chạy logic
-
-* Metaspace = Class → nơi lưu metadata
-
-* GC:
-
-  * Minor → nhanh
-  * Full → chậm
-
-* Java không leak memory ❌
-  → Sai: vẫn leak nếu còn reference
-
----
-
-# 10. Upgrade thêm (nếu muốn level Senior)
-
-## 🔥 Nên thêm:
-
-* G1 GC (default)
-
-* ZGC (low latency)
-
-* JVM tuning:
-
-  * -Xms → initial heap
-  * -Xmx → max heap
-  * -XX:MaxMetaspaceSize → metaspace limit
-
----
+*Tài liệu được biên soạn cho lộ trình Java Mastery của ND MAHN.*
